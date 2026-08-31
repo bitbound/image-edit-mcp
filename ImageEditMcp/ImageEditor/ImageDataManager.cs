@@ -1,3 +1,4 @@
+using ImageEditMcp.Abstractions.FileSystem;
 using SkiaSharp;
 
 namespace ImageEditMcp.ImageEditor;
@@ -8,21 +9,25 @@ namespace ImageEditMcp.ImageEditor;
 public sealed class ImageDataManager : IDisposable
 {
     private readonly string _dataDirectory;
+    private readonly IFileSystem _fileSystem;
 
     private SKBitmap? _bitmap;
     private bool _dirty;
     private string? _sourcePath;
     private string? _workingCopyPath;
 
-    public ImageDataManager()
+    public ImageDataManager(IFileSystem fileSystem)
     {
+        _fileSystem = fileSystem;
         _dataDirectory = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
             "image-edit-mcp");
-        Directory.CreateDirectory(_dataDirectory);
+        _fileSystem.CreateDirectory(_dataDirectory);
     }
 
     public string DataDirectory => _dataDirectory;
+
+    public IFileSystem FileSystem => _fileSystem;
 
     /// <summary>
     /// Checks if a bitmap is currently loaded.
@@ -92,8 +97,8 @@ public sealed class ImageDataManager : IDisposable
             format = NormalizeFormat(Path.GetExtension(_sourcePath) ?? ".png");
         }
 
-        var workingCopySize = _workingCopyPath is not null && File.Exists(_workingCopyPath)
-            ? new FileInfo(_workingCopyPath).Length
+        var workingCopySize = _workingCopyPath is not null && _fileSystem.FileExists(_workingCopyPath)
+            ? _fileSystem.GetFileInfo(_workingCopyPath).Length
             : 0L;
 
         return (_bitmap.Width, _bitmap.Height, format, _sourcePath, _workingCopyPath, _dirty, workingCopySize);
@@ -104,7 +109,7 @@ public sealed class ImageDataManager : IDisposable
     /// </summary>
     public (int Width, int Height, string Format, long SizeBytes) LoadImage(string filePath)
     {
-        if (!File.Exists(filePath))
+        if (!_fileSystem.FileExists(filePath))
         {
             throw new FileNotFoundException($"Image file not found: {filePath}");
         }
@@ -113,7 +118,7 @@ public sealed class ImageDataManager : IDisposable
         var ext = Path.GetExtension(filePath)?.ToLowerInvariant() ?? "";
         var format = NormalizeFormat(ext);
 
-        using var stream = File.OpenRead(normalizedPath);
+        using var stream = _fileSystem.OpenFileStream(normalizedPath, FileMode.Open, FileAccess.Read);
         _bitmap = SKBitmap.Decode(stream);
         _sourcePath = normalizedPath;
 
@@ -123,7 +128,7 @@ public sealed class ImageDataManager : IDisposable
         SaveBitmapFile(_bitmap, _workingCopyPath, format, 100);
         _dirty = false;
 
-        return (_bitmap.Width, _bitmap.Height, format, new FileInfo(normalizedPath).Length);
+        return (_bitmap.Width, _bitmap.Height, format, _fileSystem.GetFileInfo(normalizedPath).Length);
     }
 
     /// <summary>
@@ -132,11 +137,11 @@ public sealed class ImageDataManager : IDisposable
     public string LoadSnapshot(string snapshotName)
     {
         var path = snapshotName;
-        if (!File.Exists(path))
+        if (!_fileSystem.FileExists(path))
         {
             var snapshotsDir = Path.Combine(_dataDirectory, "snapshots");
             var altPath = Path.Combine(snapshotsDir, snapshotName);
-            if (File.Exists(altPath)) { path = altPath; }
+            if (_fileSystem.FileExists(altPath)) { path = altPath; }
             else { throw new FileNotFoundException($"Snapshot not found: {snapshotName}"); }
         }
 
@@ -144,7 +149,7 @@ public sealed class ImageDataManager : IDisposable
         var ext = Path.GetExtension(normalizedPath)?.ToLowerInvariant() ?? ".png";
         var format = NormalizeFormat(ext);
 
-        using var stream = File.OpenRead(normalizedPath);
+        using var stream = _fileSystem.OpenFileStream(normalizedPath, FileMode.Open, FileAccess.Read);
         var newBitmap = SKBitmap.Decode(stream);
 
         _bitmap?.Dispose();
@@ -170,7 +175,7 @@ public sealed class ImageDataManager : IDisposable
         }
 
         var format = NormalizeFormat(Path.GetExtension(_sourcePath) ?? ".png");
-        using var stream = File.OpenRead(_sourcePath);
+        using var stream = _fileSystem.OpenFileStream(_sourcePath, FileMode.Open, FileAccess.Read);
         var newBitmap = SKBitmap.Decode(stream);
         _bitmap?.Dispose();
         _bitmap = newBitmap;
@@ -209,7 +214,7 @@ public sealed class ImageDataManager : IDisposable
         var dir = Path.GetDirectoryName(fullPath);
         if (!string.IsNullOrEmpty(dir))
         {
-            Directory.CreateDirectory(dir);
+            _fileSystem.CreateDirectory(dir);
         }
 
         var ext = Path.GetExtension(fullPath)?.ToLowerInvariant() ?? ".png";
@@ -236,7 +241,7 @@ public sealed class ImageDataManager : IDisposable
         }
 
         var snapshotDir = Path.Combine(_dataDirectory, "snapshots");
-        Directory.CreateDirectory(snapshotDir);
+        _fileSystem.CreateDirectory(snapshotDir);
 
         var ext = Path.GetExtension(_workingCopyPath ?? "image.png") ?? ".png";
         var snapshotPath = Path.Combine(snapshotDir, $"{snapshotName}{ext}");
@@ -271,12 +276,12 @@ public sealed class ImageDataManager : IDisposable
             _ => "png"
         };
 
-    private static void SaveBitmapFile(SKBitmap bitmap, string filePath, string format, int quality)
+    private void SaveBitmapFile(SKBitmap bitmap, string filePath, string format, int quality)
     {
         var encodedFormat = GetEncodedFormat(format);
         using var image = SKImage.FromBitmap(bitmap);
         using var data = image.Encode(encodedFormat, quality);
-        using var stream = File.OpenWrite(filePath);
+        using var stream = _fileSystem.OpenFileStream(filePath, FileMode.Create, FileAccess.Write);
         data.SaveTo(stream);
     }
 }

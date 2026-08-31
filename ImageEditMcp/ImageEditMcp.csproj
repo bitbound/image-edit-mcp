@@ -18,4 +18,8 @@
     <PackageReference Include="SkiaSharp.NativeAssets.Linux" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ImageEditMcp.Abstractions\ImageEditMcp.Abstractions.csproj" />
+  </ItemGroup>
+
 </Project>

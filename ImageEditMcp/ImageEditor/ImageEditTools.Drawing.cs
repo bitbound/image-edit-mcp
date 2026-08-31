@@ -239,10 +239,11 @@ public sealed partial class ImageEditTools
         [Description("Opacity 0.0-1.0. Default: 1.0 (fully opaque).")]
         float opacity = 1.0f)
     {
-        if (!File.Exists(overlayPath))
+        if (!_dataManager.FileSystem.FileExists(overlayPath))
             throw new FileNotFoundException($"Overlay image not found: {overlayPath}");
 
-        using var overlay = SKBitmap.Decode(overlayPath);
+        using var overlayStream = _dataManager.FileSystem.OpenFileStream(overlayPath, FileMode.Open, FileAccess.Read);
+        using var overlay = SKBitmap.Decode(overlayStream);
         var blend = ParseBlendMode(blendMode);
         var destW = (int)(overlay.Width * scale);
         var destH = (int)(overlay.Height * scale);
