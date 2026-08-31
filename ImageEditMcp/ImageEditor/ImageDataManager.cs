@@ -10,9 +10,9 @@ public sealed class ImageDataManager : IDisposable
     private readonly string _dataDirectory;
 
     private SKBitmap? _bitmap;
+    private bool _dirty;
     private string? _sourcePath;
     private string? _workingCopyPath;
-    private bool _dirty;
 
     public ImageDataManager()
     {
@@ -20,6 +20,83 @@ public sealed class ImageDataManager : IDisposable
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
             "image-edit-mcp");
         Directory.CreateDirectory(_dataDirectory);
+    }
+
+    public string DataDirectory => _dataDirectory;
+
+    /// <summary>
+    /// Checks if a bitmap is currently loaded.
+    /// </summary>
+    public bool HasImage => _bitmap is not null;
+
+    /// <summary>
+    /// Applies an in-place edit using a canvas drawn on the current bitmap.
+    /// </summary>
+    public void ApplyEdit(Action<SKCanvas> drawAction)
+    {
+        if (_bitmap is null)
+        {
+            throw new InvalidOperationException("No image is currently loaded. Call load_image first.");
+        }
+
+        using var canvas = new SKCanvas(_bitmap);
+        drawAction(canvas);
+        _dirty = true;
+    }
+
+    /// <summary>
+    /// Creates a clone of the current working bitmap.
+    /// </summary>
+    public SKBitmap CloneCurrentBitmap()
+    {
+        if (_bitmap is null)
+        {
+            throw new InvalidOperationException("No image is currently loaded. Call load_image first.");
+        }
+
+        return _bitmap.Copy();
+    }
+
+    public void Dispose()
+    {
+        _bitmap?.Dispose();
+    }
+
+    /// <summary>
+    /// Returns the current working copy as a base64-encoded PNG string.
+    /// </summary>
+    public string GetImageDataBase64()
+    {
+        if (_bitmap is null)
+        {
+            throw new InvalidOperationException("No image is currently loaded. Call load_image first.");
+        }
+
+        using var data = _bitmap.Encode(SKEncodedImageFormat.Png, 100);
+        return Convert.ToBase64String(data.ToArray());
+    }
+
+    /// <summary>
+    /// Gets information about the current working image.
+    /// </summary>
+    public (int Width, int Height, string Format, string? SourcePath, string? WorkingCopyPath, bool Dirty, long WorkingCopySizeBytes) GetImageInfo()
+    {
+        if (_bitmap is null)
+        {
+            throw new InvalidOperationException("No image is currently loaded. Call load_image first.");
+        }
+
+        var format = "png";
+        if (_sourcePath is not null)
+        {
+            format = NormalizeFormat(Path.GetExtension(_sourcePath) ?? ".png");
+        }
+
+        var workingCopySize = _workingCopyPath is not null && File.Exists(_workingCopyPath)
+            ? new FileInfo(_workingCopyPath).Length
+            : 0L;
+
+        return (_bitmap.Width, _bitmap.Height, format, _sourcePath, _workingCopyPath, _dirty, workingCopySize);
     }
 
     /// <summary>
@@ -47,95 +124,6 @@ public sealed class ImageDataManager : IDisposable
         _dirty = false;
 
         return (_bitmap.Width, _bitmap.Height, format, new FileInfo(normalizedPath).Length);
-    }
-
-    /// <summary>
-    /// Gets information about the current working image.
-    /// </summary>
-    public (int Width, int Height, string Format, string? SourcePath, string? WorkingCopyPath, bool Dirty, long WorkingCopySizeBytes) GetImageInfo()
-    {
-        if (_bitmap is null)
-        {
-            throw new InvalidOperationException("No image is currently loaded. Call load_image first.");
-        }
-
-        var format = "png";
-        if (_sourcePath is not null)
-        {
-            format = NormalizeFormat(Path.GetExtension(_sourcePath) ?? ".png");
-        }
-
-        var workingCopySize = _workingCopyPath is not null && File.Exists(_workingCopyPath)
-            ? new FileInfo(_workingCopyPath).Length
-            : 0L;
-
-        return (_bitmap.Width, _bitmap.Height, format, _sourcePath, _workingCopyPath, _dirty, workingCopySize);
-    }
-
-    /// <summary>
-    /// Returns the current working copy as a base64-encoded PNG string.
-    /// </summary>
-    public string GetImageDataBase64()
-    {
-        if (_bitmap is null)
-        {
-            throw new InvalidOperationException("No image is currently loaded. Call load_image first.");
-        }
-
-        using var data = _bitmap.Encode(SKEncodedImageFormat.Png, 100);
-        return Convert.ToBase64String(data.ToArray());
-    }
-
-    /// <summary>
-    /// Saves the current working copy to the specified output path.
-    /// </summary>
-    public string SaveImage(string outputPath, int quality = 100)
-    {
-        if (_bitmap is null)
-        {
-            throw new InvalidOperationException("No image is currently loaded. Call load_image first.");
-        }
-
-        var fullPath = Path.GetFullPath(outputPath);
-        var dir = Path.GetDirectoryName(fullPath);
-        if (!string.IsNullOrEmpty(dir))
-        {
-            Directory.CreateDirectory(dir);
-        }
-
-        var ext = Path.GetExtension(fullPath)?.ToLowerInvariant() ?? ".png";
-        var format = NormalizeFormat(ext);
-        SaveBitmapFile(_bitmap, fullPath, format, quality);
-        _dirty = false;
-
-        return fullPath;
-    }
-
-    /// <summary>
-    /// Saves a snapshot of the current working copy state.
-    /// </summary>
-    public string SaveSnapshot(string snapshotName = "")
-    {
-        if (_bitmap is null)
-        {
-            throw new InvalidOperationException("No image is currently loaded. Call load_image first.");
-        }
-
-        if (string.IsNullOrWhiteSpace(snapshotName))
-        {
-            snapshotName = DateTimeOffset.UtcNow.ToString("yyyyMMddHHmmssfff");
-        }
-
-        var snapshotDir = Path.Combine(_dataDirectory, "snapshots");
-        Directory.CreateDirectory(snapshotDir);
-
-        var ext = Path.GetExtension(_workingCopyPath ?? "image.png") ?? ".png";
-        var snapshotPath = Path.Combine(snapshotDir, $"{snapshotName}{ext}");
-
-        var format = NormalizeFormat(ext);
-        SaveBitmapFile(_bitmap, snapshotPath, format, 100);
-
-        return snapshotPath;
     }
 
     /// <summary>
@@ -191,21 +179,6 @@ public sealed class ImageDataManager : IDisposable
     }
 
     /// <summary>
-    /// Applies an in-place edit using a canvas drawn on the current bitmap.
-    /// </summary>
-    public void ApplyEdit(Action<SKCanvas> drawAction)
-    {
-        if (_bitmap is null)
-        {
-            throw new InvalidOperationException("No image is currently loaded. Call load_image first.");
-        }
-
-        using var canvas = new SKCanvas(_bitmap);
-        drawAction(canvas);
-        _dirty = true;
-    }
-
-    /// <summary>
     /// Replaces the current bitmap with a new one produced by transform.
     /// The old bitmap is disposed.
     /// </summary>
@@ -223,45 +196,56 @@ public sealed class ImageDataManager : IDisposable
     }
 
     /// <summary>
-    /// Creates a clone of the current working bitmap.
+    /// Saves the current working copy to the specified output path.
     /// </summary>
-    public SKBitmap CloneCurrentBitmap()
+    public string SaveImage(string outputPath, int quality = 100)
     {
         if (_bitmap is null)
         {
             throw new InvalidOperationException("No image is currently loaded. Call load_image first.");
         }
 
-        return _bitmap.Copy();
+        var fullPath = Path.GetFullPath(outputPath);
+        var dir = Path.GetDirectoryName(fullPath);
+        if (!string.IsNullOrEmpty(dir))
+        {
+            Directory.CreateDirectory(dir);
+        }
+
+        var ext = Path.GetExtension(fullPath)?.ToLowerInvariant() ?? ".png";
+        var format = NormalizeFormat(ext);
+        SaveBitmapFile(_bitmap, fullPath, format, quality);
+        _dirty = false;
+
+        return fullPath;
     }
 
     /// <summary>
-    /// Checks if a bitmap is currently loaded.
+    /// Saves a snapshot of the current working copy state.
     /// </summary>
-    public bool HasImage => _bitmap is not null;
-
-    public string DataDirectory => _dataDirectory;
-
-    private static void SaveBitmapFile(SKBitmap bitmap, string filePath, string format, int quality)
+    public string SaveSnapshot(string snapshotName = "")
     {
-        var encodedFormat = GetEncodedFormat(format);
-        using var image = SKImage.FromBitmap(bitmap);
-        using var data = image.Encode(encodedFormat, quality);
-        using var stream = File.OpenWrite(filePath);
-        data.SaveTo(stream);
-    }
-
-    private static string NormalizeFormat(string ext) =>
-        ext.ToLowerInvariant() switch
+        if (_bitmap is null)
         {
-            ".png" => "png",
-            ".jpg" or ".jpeg" => "jpeg",
-            ".webp" => "webp",
-            ".bmp" => "bmp",
-            ".gif" => "gif",
-            ".avif" => "avif",
-            _ => "png"
-        };
+            throw new InvalidOperationException("No image is currently loaded. Call load_image first.");
+        }
+
+        if (string.IsNullOrWhiteSpace(snapshotName))
+        {
+            snapshotName = DateTimeOffset.UtcNow.ToString("yyyyMMddHHmmssfff");
+        }
+
+        var snapshotDir = Path.Combine(_dataDirectory, "snapshots");
+        Directory.CreateDirectory(snapshotDir);
+
+        var ext = Path.GetExtension(_workingCopyPath ?? "image.png") ?? ".png";
+        var snapshotPath = Path.Combine(snapshotDir, $"{snapshotName}{ext}");
+
+        var format = NormalizeFormat(ext);
+        SaveBitmapFile(_bitmap, snapshotPath, format, 100);
+
+        return snapshotPath;
+    }
 
     private static SKEncodedImageFormat GetEncodedFormat(string format) =>
         format.ToLowerInvariant() switch
@@ -275,8 +259,24 @@ public sealed class ImageDataManager : IDisposable
             _ => SKEncodedImageFormat.Png
         };
 
-    public void Dispose()
+    private static string NormalizeFormat(string ext) =>
+        ext.ToLowerInvariant() switch
+        {
+            ".png" => "png",
+            ".jpg" or ".jpeg" => "jpeg",
+            ".webp" => "webp",
+            ".bmp" => "bmp",
+            ".gif" => "gif",
+            ".avif" => "avif",
+            _ => "png"
+        };
+
+    private static void SaveBitmapFile(SKBitmap bitmap, string filePath, string format, int quality)
     {
-        _bitmap?.Dispose();
+        var encodedFormat = GetEncodedFormat(format);
+        using var image = SKImage.FromBitmap(bitmap);
+        using var data = image.Encode(encodedFormat, quality);
+        using var stream = File.OpenWrite(filePath);
+        data.SaveTo(stream);
     }
 }
