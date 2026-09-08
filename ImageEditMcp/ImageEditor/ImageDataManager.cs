@@ -1,4 +1,4 @@
-using ImageEditMcp.Abstractions.FileSystem;
+using Bitbound.SystemAbstractions.FileSystem;
 using SkiaSharp;
 
 namespace ImageEditMcp.ImageEditor;

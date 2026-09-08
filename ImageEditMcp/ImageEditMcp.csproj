@@ -12,14 +12,11 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="Bitbound.SystemAbstractions" />
     <PackageReference Include="ModelContextProtocol" />
     <PackageReference Include="SkiaSharp" />
     <PackageReference Include="Microsoft.Extensions.Hosting" />
     <PackageReference Include="SkiaSharp.NativeAssets.Linux" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\ImageEditMcp.Abstractions\ImageEditMcp.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>

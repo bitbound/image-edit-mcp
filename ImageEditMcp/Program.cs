@@ -1,5 +1,5 @@
-﻿using ImageEditMcp;
-using ImageEditMcp.Abstractions.FileSystem;
+﻿using Bitbound.SystemAbstractions;
+using ImageEditMcp;
 using ImageEditMcp.ImageEditor;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -13,7 +13,7 @@ var builder = Host.CreateApplicationBuilder(args);
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole(options => options.LogToStandardErrorThreshold = LogLevel.Trace);
 
-builder.Services.AddSingleton<IFileSystem, LocalFileSystem>();
+builder.Services.AddFileSystem();
 builder.Services.AddSingleton<ImageDataManager>();
 
 builder.Services.AddMcpServer()

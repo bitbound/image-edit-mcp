@@ -12,11 +12,8 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\ImageEditMcp.Abstractions\ImageEditMcp.Abstractions.csproj" />
-    <ProjectReference Include="..\ImageEditMcp.TestingUtilities\ImageEditMcp.TestingUtilities.csproj" />
+    <PackageReference Include="Bitbound.SystemAbstractions" />
+    <PackageReference Include="Bitbound.SystemAbstractions.TestUtilities" />
   </ItemGroup>
 
   <ItemGroup>
