@@ -5,7 +5,12 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <PackageIcon>bitbound.png</PackageIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\.assets\bitbound.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Bitbound.Analyzers.MemberOrder">

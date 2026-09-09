@@ -17,6 +17,6 @@
 
   <PropertyGroup>
     <NoWarn>$(NoWarn);S125;NU1608;</NoWarn>
-    <WarningsNotAsErrors>$(WarningsNotAsErrors);BB0001;NU1903</WarningsNotAsErrors>
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);BB0001;</WarningsNotAsErrors>
   </PropertyGroup>
 </Project>

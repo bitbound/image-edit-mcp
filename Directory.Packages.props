@@ -10,12 +10,11 @@
     <PackageVersion Include="Bitbound.SystemAbstractions" Version="1.0.7" />
     <PackageVersion Include="Bitbound.SystemAbstractions.TestUtilities" Version="1.0.7" />
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.0" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageVersion Include="ModelContextProtocol" Version="1.0.0" />
     <PackageVersion Include="SkiaSharp" Version="3.119.0" />
     <PackageVersion Include="SkiaSharp.NativeAssets.Linux" Version="3.119.0" />
     <PackageVersion Include="SkiaSharp.NativeAssets.Linux.Bundled" Version="3.119.0" />
-    <PackageVersion Include="xunit.v3" Version="3.0.0" />
-    <PackageVersion Include="xunit.v3.runner.console" Version="3.0.0" />
+    <PackageVersion Include="xunit.v3" Version="4.0.0" />
+    <PackageVersion Include="xunit.v3.runner.console" Version="4.0.0" />
   </ItemGroup>
 </Project>
