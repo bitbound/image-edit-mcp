@@ -8,6 +8,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PackageIcon>bitbound.png</PackageIcon>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>image-edit-mcp</ToolCommandName>
+    <PackageId>Bitbound.ImageEditMcp</PackageId>
+    <RollForward>LatestMajor</RollForward>
   </PropertyGroup>
 
   <ItemGroup>

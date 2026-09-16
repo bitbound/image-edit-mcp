@@ -11,17 +11,21 @@ This MCP server allows an agent (e.g. Claude Desktop, Claude Code) to load an im
 - .NET 10 SDK
 - Linux/macOS/Windows (SkiaSharp native assets are included per-platform)
 
-## Usage with Claude Desktop
+## Usage with GitHub Copilot
 
-Add the following to your Claude Desktop config (`claude_desktop_config.json`):
+Add the following to your GitHub Copilot config (`mcp.json`):
 
 ```json
 {
   "mcpServers": {
-    "image-edit": {
-      "command": "dotnet",
-      "args": ["/path/to/ImageEditMcp/bin/Release/net10.0/ImageEditMcp.dll"]
-    }
+		"image-edit-mcp": {
+			"type": "stdio",
+			"command": "dnx",
+			"args": [
+				"-y",
+				"Bitbound.ImageEditMcp"
+			]
+		}
   }
 }
 ```
