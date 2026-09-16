@@ -11,14 +11,6 @@ This MCP server allows an agent (e.g. Claude Desktop, Claude Code) to load an im
 - .NET 10 SDK
 - Linux/macOS/Windows (SkiaSharp native assets are included per-platform)
 
-## Building
-
-```bash
-dotnet build -c Release
-```
-
-The output binary is at `bin/Release/net10.0/ImageEditMcp.dll`.
-
 ## Usage with Claude Desktop
 
 Add the following to your Claude Desktop config (`claude_desktop_config.json`):
@@ -33,6 +25,15 @@ Add the following to your Claude Desktop config (`claude_desktop_config.json`):
   }
 }
 ```
+
+## Building
+
+```bash
+dotnet build -c Release
+```
+
+The output binary is at `bin/Release/net10.0/ImageEditMcp.dll`.
+
 
 ## How It Works
 

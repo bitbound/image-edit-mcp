@@ -1,5 +1,5 @@
 $VersionPrefix = "1.0.0"
-$LocalSourceDir = "D:\nuget-local-source"
+$LocalSourceDir = $env:NUGET_LOCAL_SOURCE
 $RepoDir = $PSScriptRoot
 
 if (-Not (Test-Path -Path $RepoDir)) {
@@ -28,7 +28,7 @@ if ($null -ne $highest) {
     Write-Host "Found $PackageId $highest in $LocalSourceDir, publishing $($VersionPrefix)"
 }
 
-$ProjectDir = Join-Path $RepoDir "ImageEditMcp"
+$ProjectDir = Join-Path $RepoDir "Bitbound.ImageEditMcp"
 dotnet pack -c Release -p:VersionPrefix=$VersionPrefix -o $LocalSourceDir $ProjectDir
 $PackExitCode = $LASTEXITCODE
 

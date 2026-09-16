@@ -1,9 +1,7 @@
-using System.ComponentModel;
-using ImageEditMcp.ImageEditor;
 using ModelContextProtocol.Server;
 using SkiaSharp;
 
-namespace ImageEditMcp;
+namespace Bitbound.ImageEditMcp.ImageEditor;
 
 /// <summary>
 /// MCP tools that expose SkiaSharp image editing APIs.

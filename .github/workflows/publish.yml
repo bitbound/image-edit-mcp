@@ -20,7 +20,7 @@ permissions:
 
 env:
   PKG_VERSION: "1.0.${{ github.run_number }}"
-  TEST_PROJECT: "ImageEditMcp.Tests/ImageEditMcp.Tests.csproj"
+  TEST_PROJECT: "Bitbound.ImageEditMcp.Tests/Bitbound.ImageEditMcp.Tests.csproj"
 
 jobs:
   publish:
@@ -35,17 +35,17 @@ jobs:
 
     - name: Build (dev)
       if: ${{ github.event_name != 'workflow_dispatch' || inputs.prerelease }}
-      run: dotnet build image-edit-mcp.slnx --configuration Release -p:FileVersion="${{ env.PKG_VERSION }}" -p:AssemblyVersion="${{ env.PKG_VERSION }}" -p:VersionPrefix="${{ env.PKG_VERSION }}" -p:VersionSuffix="dev"
+      run: dotnet build ImageEditMcp.slnx --configuration Release -p:FileVersion="${{ env.PKG_VERSION }}" -p:AssemblyVersion="${{ env.PKG_VERSION }}" -p:VersionPrefix="${{ env.PKG_VERSION }}" -p:VersionSuffix="dev"
 
     - name: Build (prod)
       if: ${{ github.event_name == 'workflow_dispatch' && inputs.prerelease == false }}
-      run: dotnet build image-edit-mcp.slnx --configuration Release -p:FileVersion="${{ env.PKG_VERSION }}" -p:AssemblyVersion="${{ env.PKG_VERSION }}" -p:VersionPrefix="${{ env.PKG_VERSION }}"
+      run: dotnet build ImageEditMcp.slnx --configuration Release -p:FileVersion="${{ env.PKG_VERSION }}" -p:AssemblyVersion="${{ env.PKG_VERSION }}" -p:VersionPrefix="${{ env.PKG_VERSION }}"
 
     - name: Test
       run: dotnet run --project "${{ env.TEST_PROJECT }}" --configuration Release --no-build
 
     - name: Pack
-      run: dotnet pack image-edit-mcp.slnx --configuration Release --no-build -p:PackageVersion=${{ env.PKG_VERSION }}
+      run: dotnet pack ImageEditMcp.slnx --configuration Release --no-build -p:PackageVersion=${{ env.PKG_VERSION }}
 
     - name: NuGet login (OIDC)
       if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch'

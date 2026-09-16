@@ -1,4 +1,0 @@
-<Solution>
-  <Project Path="./ImageEditMcp.Tests/ImageEditMcp.Tests.csproj" />
-  <Project Path="./ImageEditMcp/ImageEditMcp.csproj" />
-</Solution>

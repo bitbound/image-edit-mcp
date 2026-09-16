@@ -1,7 +1,7 @@
 using Bitbound.SystemAbstractions.FileSystem;
 using SkiaSharp;
 
-namespace ImageEditMcp.ImageEditor;
+namespace Bitbound.ImageEditMcp.ImageEditor;
 
 /// <summary>
 /// Manages the lifecycle of a working copy image in a local data folder.

@@ -2,7 +2,7 @@ using System.ComponentModel;
 using ModelContextProtocol.Server;
 using SkiaSharp;
 
-namespace ImageEditMcp;
+namespace Bitbound.ImageEditMcp.ImageEditor;
 
 public sealed partial class ImageEditTools
 {

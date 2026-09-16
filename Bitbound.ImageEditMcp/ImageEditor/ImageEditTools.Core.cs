@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using ModelContextProtocol.Server;
 
-namespace ImageEditMcp;
+namespace Bitbound.ImageEditMcp.ImageEditor;
 
 public sealed partial class ImageEditTools
 {

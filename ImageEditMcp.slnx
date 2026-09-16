@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Bitbound.ImageEditMcp.Tests/Bitbound.ImageEditMcp.Tests.csproj" />
+  <Project Path="Bitbound.ImageEditMcp/Bitbound.ImageEditMcp.csproj" />
+</Solution>
