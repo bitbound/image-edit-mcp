@@ -8,7 +8,9 @@
     <RepositoryUrl>https://github.com/bitbound/image-edit-mcp.git</RepositoryUrl>
     <PackageProjectUrl>https://github.com/bitbound/image-edit-mcp</PackageProjectUrl>
     <Company>Bitbound</Company>
-    <Description>Open-source MCP server for image editing with SkiaSharp.</Description>
+    <Description>A Model Context Protocol (MCP) server that exposes SkiaSharp-powered image editing tools over stdio. Load an image, apply edits on a local working copy, inspect the result, and save to a new file.</Description>
+    <PackageTags>mcp model-context-protocol image editing skia ai</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>

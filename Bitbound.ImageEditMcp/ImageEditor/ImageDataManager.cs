@@ -8,7 +8,6 @@ namespace Bitbound.ImageEditMcp.ImageEditor;
 /// </summary>
 public sealed class ImageDataManager : IDisposable
 {
-    private readonly string _dataDirectory;
     private readonly IFileSystem _fileSystem;
 
     private SKBitmap? _bitmap;
@@ -16,16 +15,14 @@ public sealed class ImageDataManager : IDisposable
     private string? _sourcePath;
     private string? _workingCopyPath;
 
-    public ImageDataManager(IFileSystem fileSystem)
+    public ImageDataManager(IFileSystem fileSystem, string dataDirectory)
     {
         _fileSystem = fileSystem;
-        _dataDirectory = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            "image-edit-mcp");
-        _fileSystem.CreateDirectory(_dataDirectory);
+        DataDirectory = dataDirectory;
+        _fileSystem.CreateDirectory(dataDirectory);
     }
 
-    public string DataDirectory => _dataDirectory;
+    public string DataDirectory { get; }
 
     public IFileSystem FileSystem => _fileSystem;
 
@@ -123,7 +120,7 @@ public sealed class ImageDataManager : IDisposable
         _sourcePath = normalizedPath;
 
         var fileName = Path.GetFileName(normalizedPath);
-        _workingCopyPath = Path.Combine(_dataDirectory, fileName);
+        _workingCopyPath = Path.Combine(DataDirectory, fileName);
 
         SaveBitmapFile(_bitmap, _workingCopyPath, format, 100);
         _dirty = false;
@@ -139,10 +136,15 @@ public sealed class ImageDataManager : IDisposable
         var path = snapshotName;
         if (!_fileSystem.FileExists(path))
         {
-            var snapshotsDir = Path.Combine(_dataDirectory, "snapshots");
+            var snapshotsDir = Path.Combine(DataDirectory, "snapshots");
             var altPath = Path.Combine(snapshotsDir, snapshotName);
             if (_fileSystem.FileExists(altPath)) { path = altPath; }
-            else { throw new FileNotFoundException($"Snapshot not found: {snapshotName}"); }
+            else
+            {
+                var pngAltPath = altPath + ".png";
+                if (_fileSystem.FileExists(pngAltPath)) { path = pngAltPath; }
+                else { throw new FileNotFoundException($"Snapshot not found: {snapshotName}"); }
+            }
         }
 
         var normalizedPath = Path.GetFullPath(path);
@@ -156,7 +158,7 @@ public sealed class ImageDataManager : IDisposable
         _bitmap = newBitmap;
 
         var fileName = Path.GetFileName(_sourcePath ?? "image.png");
-        _workingCopyPath = Path.Combine(_dataDirectory, fileName);
+        _workingCopyPath = Path.Combine(DataDirectory, fileName);
         SaveBitmapFile(_bitmap, _workingCopyPath, format, 100);
         _dirty = false;
 
@@ -240,7 +242,7 @@ public sealed class ImageDataManager : IDisposable
             snapshotName = DateTimeOffset.UtcNow.ToString("yyyyMMddHHmmssfff");
         }
 
-        var snapshotDir = Path.Combine(_dataDirectory, "snapshots");
+        var snapshotDir = Path.Combine(DataDirectory, "snapshots");
         _fileSystem.CreateDirectory(snapshotDir);
 
         var ext = Path.GetExtension(_workingCopyPath ?? "image.png") ?? ".png";

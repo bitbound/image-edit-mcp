@@ -44,7 +44,12 @@ jobs:
     - name: Test
       run: dotnet run --project "${{ env.TEST_PROJECT }}" --configuration Release --no-build
 
-    - name: Pack
+    - name: Pack (dev)
+      if: ${{ github.event_name != 'workflow_dispatch' || inputs.prerelease }}
+      run: dotnet pack ImageEditMcp.slnx --configuration Release --no-build -p:PackageVersion=${{ env.PKG_VERSION }}-dev
+
+    - name: Pack (prod)
+      if: ${{ github.event_name == 'workflow_dispatch' && inputs.prerelease == false }}
       run: dotnet pack ImageEditMcp.slnx --configuration Release --no-build -p:PackageVersion=${{ env.PKG_VERSION }}
 
     - name: NuGet login (OIDC)

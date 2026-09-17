@@ -6,7 +6,7 @@ if (-Not (Test-Path -Path $RepoDir)) {
     throw "Repository directory not found: $RepoDir"
 }
 
-$PackageId = "ImageEditMcp"
+$PackageId = "Bitbound.ImageEditMcp"
 $VersionPattern = "^" + [regex]::Escape($PackageId) + '\.(\d+\.\d+\.\d+)$'
 
 $highest = $null

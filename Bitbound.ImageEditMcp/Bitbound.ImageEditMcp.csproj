@@ -11,10 +11,12 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>image-edit-mcp</ToolCommandName>
     <PackageId>Bitbound.ImageEditMcp</PackageId>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <RollForward>LatestMajor</RollForward>
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
     <None Include="..\.assets\bitbound.png" Pack="true" PackagePath="\" />
   </ItemGroup>
 

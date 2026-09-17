@@ -6,6 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Bitbound.ImageEditMcp\Bitbound.ImageEditMcp.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="xunit.v3" />
     <PackageReference Include="xunit.v3.runner.console">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -13,6 +17,7 @@
     </PackageReference>
     <PackageReference Include="Bitbound.SystemAbstractions" />
     <PackageReference Include="Bitbound.SystemAbstractions.TestUtilities" />
+    <PackageReference Include="SkiaSharp" />
   </ItemGroup>
 
   <ItemGroup>

@@ -4,7 +4,7 @@ A .NET 10 Model Context Protocol (MCP) server that exposes SkiaSharp image editi
 
 ## Overview
 
-This MCP server allows an agent (e.g. Claude Desktop, Claude Code) to load an image from a file path, apply a wide range of SkiaSharp-powered edits on a working copy stored in a local data folder, read back the current state at any time, and save the result to a new file.
+This MCP server allows an agent (e.g. GitHub Copilot, OpenCode, etc.) to load an image from a file path, apply a wide range of SkiaSharp-powered edits on a working copy stored in a local data folder, read back the current state at any time, and save the result to a new file.
 
 ## Requirements
 
@@ -152,4 +152,4 @@ Working copies and snapshots are stored in:
 
 ## License
 
-This project is provided as-is for use with MCP-compatible agents.
+[MIT](LICENSE) © Bitbound.
