@@ -1,6 +1,6 @@
 # Image Edit MCP
 
-A .NET 10 Model Context Protocol (MCP) server that exposes SkiaSharp image editing tools over stdio.
+A .NET Model Context Protocol (MCP) server that exposes SkiaSharp image editing tools over stdio.
 
 ## Overview
 
