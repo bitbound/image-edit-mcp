@@ -1,5 +1,3 @@
-using System.ComponentModel;
-
 namespace Bitbound.ImageEditMcp.ImageEditor;
 
 public sealed partial class ImageEditTools
@@ -79,7 +77,6 @@ public sealed partial class ImageEditTools
       [Description("Hue rotation in degrees (0-360).")]
         float hue)
   {
-    // Use a color matrix for hue rotation
     var h = hue * Math.PI / 180.0;
     var cosH = Math.Cos(h);
     var sinH = Math.Sin(h);
@@ -87,24 +84,13 @@ public sealed partial class ImageEditTools
     var gw = 0.715;
     var bw = 0.072;
 
-    var matrix = new float[]
-    {
-            (float)(rw + (1 - rw) * cosH - (1 - rw) * sinH), (float)(gw + (1 - gw) * cosH - (1 - gw) * sinH * -1), 0, 0f, 0f,
-            0, 0, 0, 0f, 0f,
-            0, 0, 0, 0f, 0f,
-            0, 0, 0, 1f, 0f
-    };
-
-    // Simplified: just shift hue using a simpler matrix approach
-    // For a proper hue rotation we'd need a full RGB->YUV->rotate->RGB pipeline
-    // Using a simpler approximation here
-    matrix = new float[]
-    {
-            (float)(cosH + bw + rw * (1 - cosH) - gw * sinH), (float)(bw + gw * (1 - cosH) + rw * sinH), 0, 0, 0,
-            (float)(gw * (1 - cosH) + bw * sinH), (float)(cosH + rw + gw * (1 - cosH) - bw * sinH), 0, 0, 0,
-            (float)(bw * (1 - cosH) - gw * sinH), (float)(gw * sinH + bw * (1 - cosH)), 0, 0, 0,
-            0, 0, 0, 1, 0
-    };
+    float[] matrix =
+    [
+      (float)(cosH + bw + rw * (1 - cosH) - gw * sinH), (float)(bw + gw * (1 - cosH) + rw * sinH), 0, 0, 0,
+      (float)(gw * (1 - cosH) + bw * sinH), (float)(cosH + rw + gw * (1 - cosH) - bw * sinH), 0, 0, 0,
+      (float)(bw * (1 - cosH) - gw * sinH), (float)(gw * sinH + bw * (1 - cosH)), 0, 0, 0,
+      0, 0, 0, 1, 0
+    ];
 
     _dataManager.ReplaceBitmap(bmp =>
     {
@@ -130,13 +116,13 @@ public sealed partial class ImageEditTools
     var gW = 0.715f;
     var bW = 0.072f;
 
-    var matrix = new float[]
-    {
-            rW + (1 - rW) * s, gW - gW * s,       bW - bW * s,       0, 0,
-            rW - rW * s,       gW + (1 - gW) * s, bW - bW * s,       0, 0,
-            rW - rW * s,       gW - gW * s,       bW + (1 - bW) * s, 0, 0,
-            0,                 0,                 0,                 1, 0
-    };
+    float[] matrix =
+    [
+      rW + (1 - rW) * s, gW - gW * s,       bW - bW * s,       0, 0,
+      rW - rW * s,       gW + (1 - gW) * s, bW - bW * s,       0, 0,
+      rW - rW * s,       gW - gW * s,       bW + (1 - bW) * s, 0, 0,
+      0,                 0,                 0,                 1, 0
+    ];
 
     _dataManager.ReplaceBitmap(bmp =>
     {
@@ -178,13 +164,13 @@ public sealed partial class ImageEditTools
   [Description("Applies a sepia tone effect to the working copy.")]
   public string ApplySepia()
   {
-    var matrix = new float[]
-    {
-            0.393f, 0.769f, 0.189f, 0, 0,
-            0.349f, 0.689f, 0.168f, 0, 0,
-            0.272f, 0.534f, 0.131f, 0, 0,
-            0,      0,      0,      1, 0
-    };
+    float[] matrix =
+    [
+      0.393f, 0.769f, 0.189f, 0, 0,
+      0.349f, 0.689f, 0.168f, 0, 0,
+      0.272f, 0.534f, 0.131f, 0, 0,
+      0,      0,      0,      1, 0
+    ];
 
     _dataManager.ReplaceBitmap(bmp =>
     {
@@ -228,13 +214,13 @@ public sealed partial class ImageEditTools
   [Description("Applies a vintage photo filter to the working copy with warm tone shift.")]
   public string ApplyVintage()
   {
-    var matrix = new float[]
-    {
-            0.45f, 0.35f, 0.20f, 0, 0,
-            0.30f, 0.60f, 0.10f, 0, 0,
-            0.20f, 0.35f, 0.45f, 0, 0,
-            0,      0,      0,     1, 0
-    };
+    float[] matrix =
+    [
+      0.45f, 0.35f, 0.20f, 0, 0,
+      0.30f, 0.60f, 0.10f, 0, 0,
+      0.20f, 0.35f, 0.45f, 0, 0,
+      0,      0,      0,     1, 0
+    ];
 
     _dataManager.ReplaceBitmap(bmp =>
     {
@@ -257,13 +243,13 @@ public sealed partial class ImageEditTools
     var gW = 0.7152f;
     var bW = 0.0722f;
 
-    var matrix = new float[]
-    {
-            rW, gW, bW, 0, 0,
-            rW, gW, bW, 0, 0,
-            rW, gW, bW, 0, 0,
-            0, 0, 0, 1, 0
-    };
+    float[] matrix =
+    [
+      rW, gW, bW, 0, 0,
+      rW, gW, bW, 0, 0,
+      rW, gW, bW, 0, 0,
+      0, 0, 0, 1, 0
+    ];
 
     _dataManager.ReplaceBitmap(bmp =>
     {
@@ -282,13 +268,13 @@ public sealed partial class ImageEditTools
   [Description("Inverts all colors in the working copy (photographic negative). The alpha channel is preserved.")]
   public string InvertColors()
   {
-    var matrix = new float[]
-    {
-            -1,  0,  0, 0, 1,
-             0, -1,  0, 0, 1,
-             0,  0, -1, 0, 1,
-             0,  0,  0, 1, 0
-    };
+    float[] matrix =
+    [
+      -1,  0,  0, 0, 1,
+       0, -1,  0, 0, 1,
+       0,  0, -1, 0, 1,
+       0,  0,  0, 1, 0
+    ];
 
     _dataManager.ReplaceBitmap(bmp =>
     {
@@ -345,13 +331,13 @@ public sealed partial class ImageEditTools
   {
     var b = brightness;
     var c = contrast;
-    var matrix = new float[]
-    {
-            c, 0, 0, 0, b,
-            0, c, 0, 0, b,
-            0, 0, c, 0, b,
-            0, 0, 0, 1, 0
-    };
+    float[] matrix =
+    [
+      c, 0, 0, 0, b,
+      0, c, 0, 0, b,
+      0, 0, c, 0, b,
+      0, 0, 0, 1, 0
+    ];
 
     _dataManager.ReplaceBitmap(bmp =>
     {

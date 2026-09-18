@@ -1,5 +1,3 @@
-using System.ComponentModel;
-
 namespace Bitbound.ImageEditMcp.ImageEditor;
 
 public sealed partial class ImageEditTools

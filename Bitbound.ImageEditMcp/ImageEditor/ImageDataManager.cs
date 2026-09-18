@@ -135,12 +135,17 @@ public sealed class ImageDataManager : IDisposable
     {
       var snapshotsDir = Path.Combine(DataDirectory, "snapshots");
       var altPath = Path.Combine(snapshotsDir, snapshotName);
-      if (_fileSystem.FileExists(altPath)) { path = altPath; }
+      if (_fileSystem.FileExists(altPath))
+      {
+        path = altPath;
+      }
+      else if (_fileSystem.FileExists(altPath + ".png"))
+      {
+        path = altPath + ".png";
+      }
       else
       {
-        var pngAltPath = altPath + ".png";
-        if (_fileSystem.FileExists(pngAltPath)) { path = pngAltPath; }
-        else { throw new FileNotFoundException($"Snapshot not found: {snapshotName}"); }
+        throw new FileNotFoundException($"Snapshot not found: {snapshotName}");
       }
     }
 
@@ -236,7 +241,7 @@ public sealed class ImageDataManager : IDisposable
 
     if (string.IsNullOrWhiteSpace(snapshotName))
     {
-      snapshotName = DateTimeOffset.UtcNow.ToString("yyyyMMddHHmmssfff");
+      snapshotName = DateTimeOffset.UtcNow.ToString("yyyyMMddHHmmssfff", CultureInfo.InvariantCulture);
     }
 
     var snapshotDir = Path.Combine(DataDirectory, "snapshots");

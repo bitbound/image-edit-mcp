@@ -26,7 +26,7 @@ public sealed partial class ImageEditTools
   [Description("Applies edge detection to the working copy using a Sobel-like horizontal kernel.")]
   public string ApplyEdgeDetection()
   {
-    var kernel = new float[] { -1, 0, 1, -2, 0, 2, -1, 0, 1 };
+    float[] kernel = [-1, 0, 1, -2, 0, 2, -1, 0, 1];
 
     _dataManager.ReplaceBitmap(bmp =>
     {
@@ -46,7 +46,7 @@ public sealed partial class ImageEditTools
   [Description("Applies an emboss effect to the working copy.")]
   public string ApplyEmboss()
   {
-    var kernel = new float[] { -1, 0, 0, 0, 1, 0, 0, 0, 0 };
+    float[] kernel = [-1, 0, 0, 0, 1, 0, 0, 0, 0];
 
     _dataManager.ReplaceBitmap(bmp =>
     {
@@ -173,7 +173,7 @@ public sealed partial class ImageEditTools
   [Description("Applies a sharpening filter to the working copy using a 3x3 convolution kernel.")]
   public string ApplySharpen()
   {
-    var kernel = new float[] { 0, -1, 0, -1, 5, -1, 0, -1, 0 };
+    float[] kernel = [0, -1, 0, -1, 5, -1, 0, -1, 0];
 
     _dataManager.ReplaceBitmap(bmp =>
     {
