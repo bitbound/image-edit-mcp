@@ -254,7 +254,7 @@ public sealed partial class ImageEditTools
             paint.BlendMode = blend;
             var alpha = (byte)(opacity * 255);
             paint.Color = new SKColor(paint.Color.Red, paint.Color.Green, paint.Color.Blue, alpha);
-            canvas.DrawBitmap(overlay, new SKRect(x, y, x + destW, y + destH), paint);
+            canvas.DrawBitmap(overlay, new SKRect(x, y, x + destW, y + destH), SKSamplingOptions.Default, paint);
         });
 
         return $"Overlayed '{overlayPath}' at ({x},{y}) scale={scale} blend={blendMode} opacity={opacity}";

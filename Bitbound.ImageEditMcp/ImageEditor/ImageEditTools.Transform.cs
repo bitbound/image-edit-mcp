@@ -1,6 +1,4 @@
 using System.ComponentModel;
-using ModelContextProtocol.Server;
-using SkiaSharp;
 
 namespace Bitbound.ImageEditMcp.ImageEditor;
 
@@ -21,7 +19,7 @@ public sealed partial class ImageEditTools
         _dataManager.ApplyEdit(canvas =>
         {
             canvas.SetMatrix(skMatrix);
-            canvas.DrawBitmap(_dataManager.CloneCurrentBitmap(), 0, 0);
+            canvas.DrawBitmap(_dataManager.CloneCurrentBitmap(), 0, 0, SKSamplingOptions.Default);
         });
 
         return $"Applied matrix transform: [{matrix}]";
@@ -89,7 +87,7 @@ public sealed partial class ImageEditTools
                 canvas.Translate(0, -bmp.Height);
             }
 
-            canvas.DrawBitmap(bmp, 0, 0);
+            canvas.DrawBitmap(bmp, 0, 0, SKSamplingOptions.Default);
             return newBitmap;
         });
 
@@ -114,7 +112,7 @@ public sealed partial class ImageEditTools
 
             var newBitmap = new SKBitmap(w, h, bmp.ColorType, bmp.AlphaType);
             using var canvas = new SKCanvas(newBitmap);
-            canvas.DrawBitmap(bmp, new SKRect(0, 0, w, h));
+            canvas.DrawBitmap(bmp, new SKRect(0, 0, w, h), SKSamplingOptions.Default);
             return newBitmap;
         });
 
@@ -146,7 +144,7 @@ public sealed partial class ImageEditTools
             canvas.Clear(color);
             canvas.Translate(newW / 2f, newH / 2f);
             canvas.RotateDegrees(angle);
-            canvas.DrawBitmap(bmp, -bmp.Width / 2f, -bmp.Height / 2f);
+            canvas.DrawBitmap(bmp, -bmp.Width / 2f, -bmp.Height / 2f, SKSamplingOptions.Default);
             return newBitmap;
         });
 

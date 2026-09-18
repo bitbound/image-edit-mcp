@@ -1,6 +1,4 @@
 using System.ComponentModel;
-using ModelContextProtocol.Server;
-using SkiaSharp;
 
 namespace Bitbound.ImageEditMcp.ImageEditor;
 
@@ -28,7 +26,7 @@ public sealed partial class ImageEditTools
         {
             var newBitmap = new SKBitmap(newW, newH, bmp.ColorType, bmp.AlphaType);
             using var canvas = new SKCanvas(newBitmap);
-            canvas.DrawBitmap(bmp, new SKRect(0, 0, newW, newH));
+            canvas.DrawBitmap(bmp, new SKRect(0, 0, newW, newH), SKSamplingOptions.Default);
             return newBitmap;
         });
 
