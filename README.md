@@ -18,14 +18,14 @@ Add the following to your GitHub Copilot config (`mcp.json`):
 ```json
 {
   "mcpServers": {
-		"image-edit-mcp": {
-			"type": "stdio",
-			"command": "dnx",
-			"args": [
-				"-y",
-				"Bitbound.ImageEditMcp"
-			]
-		}
+    "image-edit-mcp": {
+      "type": "stdio",
+      "command": "dnx",
+      "args": [
+        "-y",
+        "Bitbound.ImageEditMcp"
+      ]
+    }
   }
 }
 ```
