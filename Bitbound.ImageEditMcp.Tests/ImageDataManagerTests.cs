@@ -263,6 +263,120 @@ public sealed class ImageDataManagerTests : IDisposable
   }
 
   [Fact]
+  public void CreateImage_WithTransparentFill_ProducesBlankWorkingCopyWithNoSource()
+  {
+    var (width, height) = _sut.CreateImage(8, 6, SKColors.Transparent);
+
+    Assert.Equal(8, width);
+    Assert.Equal(6, height);
+    Assert.True(_sut.HasImage);
+    Assert.False(_sut.GetImageInfo().Dirty);
+    Assert.Null(_sut.GetImageInfo().SourcePath);
+    Assert.Equal(8, _sut.GetImageInfo().Width);
+    Assert.Equal(6, _sut.GetImageInfo().Height);
+
+    using var clone = _sut.CloneCurrentBitmap();
+    Assert.Equal(new SKColor(0, 0, 0, 0), clone.GetPixel(0, 0));
+    Assert.Equal(new SKColor(0, 0, 0, 0), clone.GetPixel(7, 5));
+  }
+
+  [Fact]
+  public void CreateImage_WithOpaqueFill_FillsEveryPixel()
+  {
+    _sut.CreateImage(4, 4, new SKColor(255, 0, 0, 255));
+
+    using var clone = _sut.CloneCurrentBitmap();
+    Assert.Equal(new SKColor(255, 0, 0, 255), clone.GetPixel(0, 0));
+    Assert.Equal(new SKColor(255, 0, 0, 255), clone.GetPixel(3, 3));
+  }
+
+  [Fact]
+  public void CreateImage_WritesPngWorkingCopyInDataDirectory()
+  {
+    _sut.CreateImage(3, 3, SKColors.Transparent);
+
+    var workingCopyPath = _sut.GetImageInfo().WorkingCopyPath;
+    Assert.NotNull(workingCopyPath);
+    Assert.StartsWith(DataDirectory, workingCopyPath);
+    Assert.EndsWith(".png", workingCopyPath);
+    Assert.True(_fileSystem.FileExists(workingCopyPath));
+  }
+
+  [Fact]
+  public void CreateImage_TransparentFill_SurvivesPngRoundTrip()
+  {
+    _sut.CreateImage(4, 4, SKColors.Transparent);
+
+    using var decoded = SKBitmap.Decode(Convert.FromBase64String(_sut.GetImageDataBase64()));
+
+    Assert.NotNull(decoded);
+    Assert.Equal(4, decoded.Width);
+    Assert.Equal(0, decoded.GetPixel(2, 3).Alpha);
+  }
+
+  [Fact]
+  public void CreateImage_ThenApplyEdit_SucceedsWithoutLoadImage()
+  {
+    _sut.CreateImage(16, 16, SKColors.Transparent);
+
+    _sut.ApplyEdit(canvas =>
+    {
+      using var paint = new SKPaint
+      {
+        Color = new SKColor(0, 0, 255, 255),
+        BlendMode = SKBlendMode.Src,
+      };
+      canvas.DrawRect(2, 2, 4, 4, paint);
+    });
+
+    Assert.True(_sut.GetImageInfo().Dirty);
+    using var clone = _sut.CloneCurrentBitmap();
+    Assert.Equal(new SKColor(0, 0, 255, 255), clone.GetPixel(3, 3));
+    Assert.Equal(new SKColor(0, 0, 0, 0), clone.GetPixel(10, 10));
+  }
+
+  [Fact]
+  public void CreateImage_WhenImageAlreadyLoaded_ReplacesWorkingCopy()
+  {
+    _sut.LoadImage(SeedSourceImage("photo.png"));
+
+    _sut.CreateImage(2, 2, SKColors.Transparent);
+
+    Assert.Equal(2, _sut.GetImageInfo().Width);
+    Assert.Null(_sut.GetImageInfo().SourcePath);
+  }
+
+  [Fact]
+  public void CreateImage_ThenReloadOriginal_ThrowsInvalidOperationException()
+  {
+    _sut.CreateImage(4, 4, SKColors.Transparent);
+
+    Assert.Throws<InvalidOperationException>(() => _sut.ReloadOriginal());
+  }
+
+  [Theory]
+  [InlineData(0, 4)]
+  [InlineData(-1, 4)]
+  [InlineData(4, 0)]
+  [InlineData(4, -1)]
+  [InlineData(8193, 4)]
+  [InlineData(4, 8193)]
+  public void CreateImage_WithDimensionOutsideRange_ThrowsArgumentOutOfRangeException(int width, int height)
+  {
+    Assert.Throws<ArgumentOutOfRangeException>(() => _sut.CreateImage(width, height, SKColors.Transparent));
+    Assert.False(_sut.HasImage);
+  }
+
+  [Fact]
+  public void CreateImage_WithMaximumDimension_Succeeds()
+  {
+    var (width, height) = _sut.CreateImage(8192, 1, SKColors.Transparent);
+
+    Assert.Equal(8192, width);
+    Assert.Equal(1, height);
+  }
+
+  [Fact]
   public void GetImageInfo_BeforeLoad_ThrowsInvalidOperationException()
   {
     Assert.Throws<InvalidOperationException>(() => _sut.GetImageInfo());

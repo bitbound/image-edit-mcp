@@ -2,6 +2,24 @@ namespace Bitbound.ImageEditMcp.ImageEditor;
 
 public sealed partial class ImageEditTools
 {
+  [McpServerTool(Name = "create_image")]
+  [Description("Creates a blank working copy of the given size, filled with a color (transparent by default). No source file is required, so drawing can start from an empty canvas.")]
+  public string CreateImage(
+      [Description("Width of the new image in pixels.")]
+        int width,
+      [Description("Height of the new image in pixels.")]
+        int height,
+      [Description("Fill color as hex (e.g. '#FF0000' for red, '#00000000' for transparent). Default: transparent.")]
+        string? color = "00000000")
+  {
+    var fillColor = ParseColor(color, SKColors.Transparent);
+    var (w, h) = _dataManager.CreateImage(width, height, fillColor);
+    return $"Created blank working copy.\n" +
+           $"Dimensions: {w}x{h}\n" +
+           $"Format: png\n" +
+           $"Data directory: {_dataManager.DataDirectory}";
+  }
+
   [McpServerTool(Name = "get_image_info")]
   [Description("Returns metadata about the currently loaded image including dimensions, format, source path, working copy path, and dirty state.")]
   public string GetImageInfo()

@@ -51,37 +51,9 @@ public sealed partial class ImageEditTools(ImageDataManager dataManager)
   {
     if (hex is null) return fallback;
 
-    hex = hex.TrimStart('#');
+    var value = hex.TrimStart('#');
 
-    if (hex.Length == 3)
-    {
-      hex = $"{hex[0]}{hex[0]}{hex[1]}{hex[1]}{hex[2]}{hex[2]}";
-    }
-
-    if (hex.Length == 6)
-    {
-      if (uint.TryParse(hex, out var argb))
-      {
-        var r = (byte)((argb >> 16) & 0xFF);
-        var g = (byte)((argb >> 8) & 0xFF);
-        var b = (byte)(argb & 0xFF);
-        return new SKColor(r, g, b, 255);
-      }
-    }
-    else if (hex.Length == 8)
-    {
-      if (uint.TryParse(hex, out var argb))
-      {
-        var a = (byte)((argb >> 24) & 0xFF);
-        var r = (byte)((argb >> 16) & 0xFF);
-        var g = (byte)((argb >> 8) & 0xFF);
-        var b = (byte)(argb & 0xFF);
-        return new SKColor(r, g, b, a);
-      }
-    }
-
-    var sc = hex.ToLowerInvariant();
-    return sc switch
+    var named = value.ToLowerInvariant() switch
     {
       "black" => SKColors.Black,
       "white" => SKColors.White,
@@ -93,7 +65,33 @@ public sealed partial class ImageEditTools(ImageDataManager dataManager)
       "magenta" => SKColors.Magenta,
       "transparent" => SKColors.Transparent,
       "gray" or "grey" => SKColors.Gray,
-      _ => fallback
+      _ => (SKColor?)null
     };
+
+    if (named is not null)
+    {
+      return named.Value;
+    }
+
+    if (value.Length == 3)
+    {
+      value = $"{value[0]}{value[0]}{value[1]}{value[1]}{value[2]}{value[2]}";
+    }
+
+    if (value.Length != 6 && value.Length != 8)
+    {
+      return fallback;
+    }
+
+    if (!uint.TryParse(value, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var argb))
+    {
+      return fallback;
+    }
+
+    var r = (byte)((argb >> 16) & 0xFF);
+    var g = (byte)((argb >> 8) & 0xFF);
+    var b = (byte)(argb & 0xFF);
+    var a = value.Length == 8 ? (byte)((argb >> 24) & 0xFF) : (byte)255;
+    return new SKColor(r, g, b, a);
   }
 }

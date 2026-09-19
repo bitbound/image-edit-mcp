@@ -4,7 +4,7 @@ A .NET Model Context Protocol (MCP) server that exposes SkiaSharp image editing 
 
 ## Overview
 
-This MCP server allows an agent (e.g. GitHub Copilot, OpenCode, etc.) to load an image from a file path, apply a wide range of SkiaSharp-powered edits on a working copy stored in a local data folder, read back the current state at any time, and save the result to a new file.
+This MCP server allows an agent (e.g. GitHub Copilot, OpenCode, etc.) to load an image from a file path, apply a wide range of SkiaSharp-powered edits on a working copy stored in a local data folder, read back the current state at any time, and save the result to a new file. `create_image` skips the file and starts from a blank canvas instead.
 
 ## Requirements
 
@@ -41,11 +41,13 @@ The output binary is at `bin/Release/net10.0/ImageEditMcp.dll`.
 
 ## How It Works
 
-1. **`load_image`** loads an image from a file path and creates a working copy in the data folder (`<config-dir>/image-edit-mcp/`).
+1. **`load_image`** loads an image from a file path and creates a working copy in the data folder (`<config-dir>/image-edit-mcp/`). **`create_image`** does the same thing from scratch, allocating a blank canvas of the requested size instead of decoding a file.
 2. All subsequent edit tools operate on this working copy in memory.
 3. **`read_image`** returns the current state as a base64-encoded PNG data URI.
 4. **`save_image`** saves the working copy to a new file path (the original loaded file is never modified).
 5. **`save_snapshot`** / **`load_snapshot`** allow you to checkpoint and restore intermediate states.
+
+A working copy created by `create_image` has no source file, so `reload_original` is unavailable until `load_image` runs.
 
 ## Available Tools
 
@@ -53,6 +55,7 @@ The output binary is at `bin/Release/net10.0/ImageEditMcp.dll`.
 
 | Tool | Description |
 |------|-------------|
+| `create_image` | Create a blank working copy of a given size (transparent by default) |
 | `load_image` | Load an image from a file path into a working copy |
 | `read_image` | Read the current working copy as a base64 PNG data URI |
 | `save_image` | Save the working copy to a new file path |
@@ -131,7 +134,7 @@ ImageEditMcp/
 ├── Program.cs                          # MCP server entry point (stdio transport)
 ├── ImageEditor/
 │   ├── ImageDataManager.cs             # Working copy lifecycle (load/save/snapshot)
-│   └── ImageEditTools.cs               # All MCP tools (43 tools)
+│   └── ImageEditTools.cs               # All MCP tools (44 tools)
 ├── ImageEditMcp.csproj
 ```
 
@@ -141,7 +144,7 @@ The `ImageDataManager` is a singleton that manages:
 - A working copy path in the data folder
 - A dirty flag tracking unsaved changes
 
-The `ImageEditTools` class contains all 43 MCP tools, each annotated with `[McpServerTool]` and parameter descriptions via `[Description]`.
+The `ImageEditTools` class contains all 44 MCP tools, each annotated with `[McpServerTool]` and parameter descriptions via `[Description]`.
 
 ### Data Directory
 

@@ -5,6 +5,8 @@ namespace Bitbound.ImageEditMcp.ImageEditor;
 /// </summary>
 public sealed class ImageDataManager : IDisposable
 {
+  private const int MaxDimension = 8192;
+
   private readonly IFileSystem _fileSystem;
 
   private SKBitmap? _bitmap;
@@ -35,7 +37,7 @@ public sealed class ImageDataManager : IDisposable
   {
     if (_bitmap is null)
     {
-      throw new InvalidOperationException("No image is currently loaded. Call load_image first.");
+      throw new InvalidOperationException("No image is currently loaded. Call load_image or create_image first.");
     }
 
     using var canvas = new SKCanvas(_bitmap);
@@ -50,10 +52,39 @@ public sealed class ImageDataManager : IDisposable
   {
     if (_bitmap is null)
     {
-      throw new InvalidOperationException("No image is currently loaded. Call load_image first.");
+      throw new InvalidOperationException("No image is currently loaded. Call load_image or create_image first.");
     }
 
     return _bitmap.Copy();
+  }
+
+  /// <summary>
+  /// Creates a blank working copy of the given size, filled with the supplied color.
+  /// The result has no source file, so reload_original stays unavailable until an image is loaded.
+  /// </summary>
+  public (int Width, int Height) CreateImage(int width, int height, SKColor fillColor)
+  {
+    if (width is < 1 or > MaxDimension)
+    {
+      throw new ArgumentOutOfRangeException(nameof(width), width, $"Width must be between 1 and {MaxDimension}.");
+    }
+
+    if (height is < 1 or > MaxDimension)
+    {
+      throw new ArgumentOutOfRangeException(nameof(height), height, $"Height must be between 1 and {MaxDimension}.");
+    }
+
+    _bitmap?.Dispose();
+    _bitmap = new SKBitmap(width, height, SKColorType.Rgba8888, SKAlphaType.Premul);
+    _bitmap.Erase(fillColor);
+    _sourcePath = null;
+
+    var fileName = $"untitled-{DateTimeOffset.UtcNow.ToString("yyyyMMddHHmmssfff", CultureInfo.InvariantCulture)}.png";
+    _workingCopyPath = Path.Combine(DataDirectory, fileName);
+    SaveBitmapFile(_bitmap, _workingCopyPath, "png", 100);
+    _dirty = false;
+
+    return (width, height);
   }
 
   public void Dispose()
@@ -68,7 +99,7 @@ public sealed class ImageDataManager : IDisposable
   {
     if (_bitmap is null)
     {
-      throw new InvalidOperationException("No image is currently loaded. Call load_image first.");
+      throw new InvalidOperationException("No image is currently loaded. Call load_image or create_image first.");
     }
 
     using var data = _bitmap.Encode(SKEncodedImageFormat.Png, 100);
@@ -82,7 +113,7 @@ public sealed class ImageDataManager : IDisposable
   {
     if (_bitmap is null)
     {
-      throw new InvalidOperationException("No image is currently loaded. Call load_image first.");
+      throw new InvalidOperationException("No image is currently loaded. Call load_image or create_image first.");
     }
 
     var format = "png";
@@ -195,7 +226,7 @@ public sealed class ImageDataManager : IDisposable
   {
     if (_bitmap is null)
     {
-      throw new InvalidOperationException("No image is currently loaded. Call load_image first.");
+      throw new InvalidOperationException("No image is currently loaded. Call load_image or create_image first.");
     }
 
     var newBitmap = transform(_bitmap);
@@ -211,7 +242,7 @@ public sealed class ImageDataManager : IDisposable
   {
     if (_bitmap is null)
     {
-      throw new InvalidOperationException("No image is currently loaded. Call load_image first.");
+      throw new InvalidOperationException("No image is currently loaded. Call load_image or create_image first.");
     }
 
     var fullPath = Path.GetFullPath(outputPath);
@@ -236,7 +267,7 @@ public sealed class ImageDataManager : IDisposable
   {
     if (_bitmap is null)
     {
-      throw new InvalidOperationException("No image is currently loaded. Call load_image first.");
+      throw new InvalidOperationException("No image is currently loaded. Call load_image or create_image first.");
     }
 
     if (string.IsNullOrWhiteSpace(snapshotName))
